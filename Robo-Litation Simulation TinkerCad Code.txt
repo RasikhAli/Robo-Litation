@@ -1,0 +1,259 @@
+/*
+#include <Servo.h>
+
+// The minimum and maximum values of the flex sensors.
+// NOTE: These were determined by simply reading the
+// analog values when the flex sensor was at rest,
+// and fully flexed. (analogRead(pin) in Serial Monitor.)
+#define FLEX_MIN        384
+#define FLEX_MAX        783
+
+// The minimum and maximum turning values of the servo.
+#define SERVO_MIN       0
+#define SERVO_MAX       180
+
+// Macro used to get number of elements in an array.
+#define LENGTH(arr)     sizeof(arr)/sizeof(arr[0])
+
+// Define input and output pins
+uint8_t glove[5] = {6,  5,   4,  3,  2}; // Glove pins.
+uint8_t poten[5] = {A0, A1, A2, A3, A4}; // Potentiometer pins.
+uint8_t servo[5] = {11, 10,  9,  8,  7}; // Servo pins (PWM).
+
+// Create 5 servo objects to represent our fingers.
+Servo finger[5];
+
+uint8_t pin;    // Which pin we are currently using.
+int16_t pos;    // The new position to write to the servo.
+int inputFlex;  // The current value of the flex sensor.
+int inputPoten; // The current value of the potentiometer.
+
+void setup() {
+  Serial.begin(9600);
+  
+  // Setup our inputs here.
+  for (pin = 0; pin < LENGTH(glove); pin++) {
+    // Use Arduino's built-in resistor (INPUT_PULLUP).
+    pinMode(glove[pin], INPUT_PULLUP);
+    pinMode(poten[pin], INPUT);
+  }
+  
+  // Setup our outputs here.
+  for (pin = 0; pin < LENGTH(servo); pin++) {
+    finger[pin].attach(servo[pin]);
+  }
+}
+
+void loop() {
+  // For each input pin on the glove...
+  for (pin = 0; pin < LENGTH(glove); pin++) {
+    // Read the current value of the current finger's flex sensor.
+    inputFlex = analogRead(glove[pin]);
+    
+    // Scale this value according to what a servo can do.
+    pos = map(inputFlex, FLEX_MIN, FLEX_MAX, SERVO_MIN, SERVO_MAX);
+    
+    // Read the current value of the current finger's potentiometer.
+    inputPoten = analogRead(poten[pin]);
+    
+    // Scale this value according to what a servo can do.
+    pos = map(inputPoten, 0, 1023, SERVO_MIN, SERVO_MAX);
+    
+    // Print out how much each finger is moving.
+    Serial.print(" Fi ");
+    Serial.print(pin+1);
+    Serial.print(" Fl: ");
+    Serial.print(inputFlex);
+    Serial.print(" Po: ");
+    Serial.print(inputPoten);
+    Serial.print(" \n ");
+    
+    // Write the new position of the current finger to the servo.
+    finger[pin].write(pos);
+  }
+  
+  // Create a new line in the debug output, ready for new values.
+  Serial.println("");
+  // Wait a millisecond to avoid unnecessary jitter.
+  delay(0);
+}
+*/
+
+
+#include <Servo.h>
+
+// The minimum and maximum values of the flex sensors.
+// NOTE: These were determined by simply reading the
+// analog values when the flex sensor was at rest,
+// and fully flexed. (analogRead(pin) in Serial Monitor.)
+#define FLEX_MIN        384
+#define FLEX_MAX        783
+
+// The minimum and maximum turning values of the servo.
+#define SERVO_MIN       0
+#define SERVO_MAX       180
+
+// Macro used to get number of elements in an array.
+#define LENGTH(arr)     sizeof(arr)/sizeof(arr[0])
+
+// Define input and output pins
+uint8_t glove[5] = {6,  5,   4,  3,  2}; // Glove pins.
+uint8_t poten[5] = {A0, A1, A2, A3, A4}; // Potentiometer pins.
+uint8_t servo[5] = {11, 10,  9,  8,  7}; // Servo pins (PWM).
+
+// Create 5 servo objects to represent our fingers.
+Servo finger[5];
+
+uint8_t pin;    // Which pin we are currently using.
+int16_t pos;    // The new position to write to the servo.
+int16_t potenPos;
+int inputFlex;  // The current value of the flex sensor.
+int inputPoten; // The current value of the potentiometer.
+int inputPotenMapped; // The mapped value of the potentiometer input.
+
+void setup() {
+  Serial.begin(9600);
+  
+  // Setup our inputs here.
+  for (pin = 0; pin < LENGTH(glove); pin++) {
+    // Use Arduino's built-in resistor (INPUT_PULLUP).
+    pinMode(glove[pin], INPUT_PULLUP);
+    pinMode(poten[pin], INPUT);
+  }
+  
+  // Setup our outputs here.
+  for (pin = 0; pin < LENGTH(servo); pin++) {
+    finger[pin].attach(servo[pin]);
+  }
+}
+
+void loop() {
+  // For each input pin on the glove...
+  for (pin = 0; pin < LENGTH(glove); pin++) {
+    // Read the current value of the current finger's flex sensor.
+    inputFlex = analogRead(glove[pin]);
+    
+    // Scale this value according to what a servo can do.
+    pos = map(inputFlex, FLEX_MIN, FLEX_MAX, SERVO_MIN, SERVO_MAX);
+    
+    // Read the current value of the current finger's potentiometer.
+    inputPoten = analogRead(poten[pin]);
+    
+    // Scale this value according to what a servo can do.
+    inputPotenMapped = map(inputPoten, 0, 1023, SERVO_MIN, SERVO_MAX);
+    
+    // Print out how much each finger is moving.
+    Serial.print(" Fi ");
+    Serial.print(pin+1);
+    Serial.print(" Fl: ");
+    Serial.print(inputFlex);
+    Serial.print(" Po: ");
+    Serial.print(inputPoten);
+    Serial.print(" \n ");
+    
+    // Write the new position of the current finger to the servo.
+    finger[pin].write(inputPotenMapped);
+  }
+  
+  // Create a new line in the debug output, ready for new values.
+  Serial.println("");
+  // Wait a millisecond to avoid unnecessary jitter.
+  delay(1); 
+}
+
+/*
+#include <Servo.h>
+
+// The minimum and maximum values of the flex sensors.
+// NOTE: These were determined by simply reading the
+// analog values when the flex sensor was at rest,
+// and fully flexed. (analogRead(pin) in Serial Monitor.)
+#define FLEX_MIN        384
+#define FLEX_MAX        783
+
+// The minimum and maximum turning values of the servo.
+#define SERVO_MIN       0
+#define SERVO_MAX       180
+
+// Define the dead band around the resting position of the sensors.
+#define DEAD_BAND       50
+
+// Macro used to get number of elements in an array.
+#define LENGTH(arr)     sizeof(arr)/sizeof(arr[0])
+
+// Define input and output pins
+uint8_t poten[5] = {A0, A1, A2, A3, A4}; // Potentiometer pins.
+uint8_t glove[5] = { 6,  5,  4,  3,  2}; // Glove pins.
+uint8_t servo[5] = {13, 12,  11,  10,  9}; // Servo pins (PWM).
+
+// Create 5 servo objects to represent our fingers.
+Servo finger[5];
+
+uint8_t pin;    // Which pin we are currently using.
+int16_t pos;    // The new position to write to the servo.
+int inputFlex;  // The current value of the flex sensor.
+int inputPoten; // The current value of the potentiometer.
+int inputPotenMapped; // The mapped value of the potentiometer input.
+
+// Define variables to store previous values of flex sensor and potentiometer.
+int prevFlex[5] = {384, 384, 384, 384, 384};
+int prevPoten[5] = {0, 0, 0, 0, 0};
+
+void setup() {
+  Serial.begin(9600);
+  
+  // Setup our inputs here.
+  for (pin = 0; pin < LENGTH(glove); pin++) {
+    // Use Arduino's built-in resistor (INPUT_PULLUP).
+    pinMode(glove[pin], INPUT_PULLUP);
+    pinMode(poten[pin], INPUT);
+  }
+  
+  // Setup our outputs here.
+  for (pin = 0; pin < LENGTH(servo); pin++) {
+    finger[pin].attach(servo[pin]);
+  }
+}
+
+void loop() {
+  // For each input pin on the glove...
+  for (pin = 0; pin < LENGTH(finger); pin++) {
+    // Read the current value of the current finger's flex sensor.
+    inputFlex = analogRead(glove[pin]);
+
+    // Read the current value of the current finger's potentiometer.
+    inputPoten = analogRead(poten[pin]);
+
+    // Check if either input has changed.
+    if (inputFlex != prevFlex[pin] || inputPoten != prevPoten[pin]) {
+      // Store the current values as the previous values for the next loop iteration.
+      prevFlex[pin] = inputFlex;
+      prevPoten[pin] = inputPoten;
+
+      // Determine which input to use to control the servo.
+      int maxInput = max(inputFlex, inputPoten);
+      if (maxInput > FLEX_MIN && maxInput < FLEX_MAX) {
+        // Scale the input value according to what a servo can do.
+        pos = map(maxInput, FLEX_MIN, FLEX_MAX, SERVO_MIN, SERVO_MAX);
+        finger[pin].write(pos);
+      } else {
+        // Scale the potentiometer value according to what a servo can do.
+        inputPotenMapped = map(inputPoten, 0, 1023, SERVO_MIN, SERVO_MAX);
+        finger[pin].write(inputPotenMapped);
+      }
+    }
+    // Print out how much each finger is moving.
+    Serial.print(" Fi ");
+    Serial.print(pin+1);
+    Serial.print(" Fl: ");
+    Serial.print(inputFlex);
+    Serial.print(" Po: ");
+    Serial.print(inputPoten);
+    Serial.print("\n");
+  }
+  // Create a new line in the debug output, ready for new values.
+  Serial.println("\n");
+  // Wait a millisecond to avoid unnecessary jitter.
+  delay(1); 
+}
+*/
